@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+# This script converts a Jupyter Notebook .ipynb into a standalone .tex file
+# using pandoc with the --listings option to get clean .tex source
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 notebook.ipynb";
+    exit 1
+fi
+
+nbfile="$1"
+mdfile="$(basename -- "$nbfile" .ipynb).md"
+texfile="$(basename -- "$nbfile" .ipynb).tex"
+
+
+# 1. nb -> md
+jupyter-nbconvert --to=markdown --output="$mdfile" "$nbfile"
+
+# 2. md -> tex
+pandoc --listings --standalone --top-level-division=section \
+        -f markdown "$mdfile" \
+        -t latex -o "$texfile"
+
+# 3. cleanup intermediate file
+rm "$mdfile"
+
+echo "Done. Result saved to $texfile"
+

@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+import argparse
+from datetime import datetime
+from datetime import timedelta
+
+today = datetime.today()
+oneday = timedelta(days=1)
+
+
+def ordinal(n: int):
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    return str(n) + suffix
+
+
+def formatdate(date):
+    day_int = int(date.strftime("%e"))
+    oday = ordinal(day_int)
+    return date.strftime("%a, %b ") + oday
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog="tododates", description="print list of dates for GLOABAL TODOs")
+    parser.add_argument('-c', '--count', default="10")
+    args = parser.parse_args()
+    n = int(args.count)
+
+    headings = []
+    date = today
+    for i in range(0,n):
+        heading = formatdate(date)
+        headings.append(heading)
+        date = date + oneday
+
+    for heading in reversed(headings):
+        print(heading)

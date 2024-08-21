@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -e
+
+mobifilename="$1"
+pdffilename="$(basename -- "$mobifilename" .mobi).pdf"
+
+echo "Convering $mobifilename to pdf..."
+ 
+ebook-convert "$mobifilename" tmp1.pdf --embed-all-fonts
+
+gs \
+  -sDEVICE=pdfwrite \
+  -dCompatibilityLevel=1.4 \
+  -dPDFSETTINGS=/ebook \
+  -dNOPAUSE -dQUIET -dBATCH \
+  -dPrinted=false \
+  -sOutputFile="tmp2.pdf" \
+  tmp1.pdf
+rm tmp1.pdf
+mv tmp2.pdf "$pdffilename"
+
+echo "PDF file saved to $pdffilename"

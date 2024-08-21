@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""
+This script generates links to mybinder and colab online Python environments you
+can use for any jupyter notebook hosted on in a GitHub repo.
+
+Usage:
+
+    mdnblinks  --name noBSstatsnotebooks  --path "stats_overview/01_DATA.ipynb"
+
+Copy paste the output in your README.md to get nice badges for your notebooks.
+"""
+import argparse
+from urllib.parse import quote
+
+
+IMG_LINK_TEMPLATE = "[![{badge_alt}]({badge_url})]({link_url})"
+
+badge_urls = {
+    "binder": "https://mybinder.org/badge_logo.svg",
+    "colab": "https://colab.research.google.com/assets/colab-badge.svg",
+}
+
+MYBINDER_URL_TEMPLATE = "https://mybinder.org/v2/gh/{org}/{name}/{branch}"
+MYBINDER_PATH_SUFFIX = "?labpath={urlquoted_path}"
+
+COLAB_URL_TEMPLATE = "https://colab.research.google.com/github/{org}/{name}/blob/{branch}/{path}"
+COLAB_URL_TEMPLATE_NO_PATH = "https://colab.research.google.com/github/{org}/{name}/blob/{branch}"
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Notebooks links generator')
+    parser.add_argument('--org', default="minireference", help="Github username or org name")
+    parser.add_argument('--branch', default="main", help="branch/tag/ref name")
+    parser.add_argument('--name', required=True, help="repo name")
+    parser.add_argument('--path', required=False, help="Path to notebook")
+    args = parser.parse_args()
+
+    # Prepare the mybinder.org/v2/ badge link
+    binder_link_url = MYBINDER_URL_TEMPLATE.format(
+        org=args.org,
+        name=args.name,
+        branch=args.branch,
+    )
+    if args.path:
+        urlquoted_path = quote(args.path, safe='')
+        binder_link_url += MYBINDER_PATH_SUFFIX.format(urlquoted_path=urlquoted_path)
+    binder_link = IMG_LINK_TEMPLATE.format(
+        badge_alt="Binder",
+        badge_url=badge_urls['binder'],
+        link_url=binder_link_url
+    )
+
+    # Prepare Google Colab badge link
+    if args.path:
+        colab_link_url = COLAB_URL_TEMPLATE.format(
+            org=args.org,
+            name=args.name,
+            branch=args.branch,
+            path=args.path,
+        )
+    else:
+        colab_link_url = COLAB_URL_TEMPLATE_NO_PATH.format(
+            org=args.org,
+            name=args.name,
+            branch=args.branch,
+            path=args.path,
+        )
+    colab_link = IMG_LINK_TEMPLATE.format(
+        badge_alt="Colab",
+        badge_url=badge_urls['colab'],
+        link_url=colab_link_url
+    )
+
+    # Output both badges on single line
+    print(binder_link, colab_link)

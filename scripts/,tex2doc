@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+# This script converts any .tex file into .docx file using pandoc
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 article.tex";
+    exit 1
+fi
+
+texfile="$1"
+docfile="$(basename -- "$texfile" .tex).docx"
+
+pandoc "$texfile" -o "$docfile"
+echo "Done. Result saved to $docfile"

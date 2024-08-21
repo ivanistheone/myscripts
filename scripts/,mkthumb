@@ -1,0 +1,15 @@
+#!/bin/bash
+echo "Thumbnail generator v0.1"
+
+echo "Extracting thumbnail from PDF file $1"
+
+convert -limit memory 800MiB \
+        -limit map 800MiB \
+        -density 332 \
+        "$1"[0] \
+        -background white \
+        -alpha remove \
+        -colorspace sRGB \
+        -resize 25% -quality 95 \
+        "$1".png
+

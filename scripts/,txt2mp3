@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -e
+# This script converts any text file into a mp3 audiobook using the MacOS
+# text-to-speech accessibility command-line tool `say`.
+# Adjust the `VOICE` and `RATE` parameters to customize to your liking:
+VOICE="Alex"
+# RATE="295"  # pretty fast
+RATE="315"  # Ivan standard
+
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 article.txt";
+    exit 1
+fi
+
+txtfilename="$1"
+aifffilename="$(basename -- "$txtfilename" .txt).aiff"
+mp3filename="$(basename -- "$txtfilename" .txt).mp3"
+
+
+echo "Convering $txtfilename to mp3 audiobook..."
+
+# 1. Speak the text file, saving as an .aiff audio file
+say -v $VOICE -r $RATE -f "$txtfilename" -o "$aifffilename"
+
+# 2. Convert the .aiff to .mp3
+ffmpeg  -hide_banner -loglevel error \
+  -i "$aifffilename" \
+  -b:a 128k  "$mp3filename"
+
+# 3. Remove the .aiff file
+rm "$aifffilename"
+
+echo "Done. Result saved to $PWD/$mp3filename"

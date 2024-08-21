@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+# Converts an .epub file to .pdf
+# Requires Calibre and ghostscript to be installed
+
+epubfilename="$1"
+namenoext="$(basename -- "$epubfilename" .epub)"
+randomstr="$(basename $(mktemp))"
+tmpfilename1="$namenoext-$randomstr-1.pdf"
+tmpfilename2="$namenoext-$randomstr-2.pdf"
+pdffilename="$namenoext.pdf"
+
+
+echo "Convering $epubfilename to pdf..."
+ 
+ebook-convert "$epubfilename" "$tmpfilename1" --embed-all-fonts
+
+gs \
+  -sDEVICE=pdfwrite \
+  -dCompatibilityLevel=1.4 \
+  -dPDFSETTINGS=/ebook \
+  -dNOPAUSE -dQUIET -dBATCH \
+  -dPrinted=false \
+  -sOutputFile="$tmpfilename2" \
+  "$tmpfilename1"
+rm "$tmpfilename1"
+mv "$tmpfilename2" "$pdffilename"
+
+echo "PDF file saved to $pdffilename"
